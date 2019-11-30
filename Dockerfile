@@ -72,5 +72,7 @@ RUN npm ci --unsafe-perm
 
 ENV NODE_ENV production
 
+USER node
+
 EXPOSE 3000
-CMD [ "npm", "run", "serve"]
+CMD [ "node", "dist/server.js"]
