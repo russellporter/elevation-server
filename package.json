@@ -9,6 +9,7 @@
   "author": "Russell Porter",
   "license": "MIT",
   "scripts": {
+    "postinstall": "npm run build-ts",
     "start": "npm run serve",
     "build": "npm run build-ts && npm run lint",
     "serve": "node dist/server.js",

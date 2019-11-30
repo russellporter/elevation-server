@@ -61,17 +61,16 @@ RUN cd src && tar -xvf gdal-${GDAL_VERSION}.tar.gz && cd gdal-${GDAL_VERSION} \
 # Create app directory
 WORKDIR /usr/src/app
 
-ENV NODE_ENV production
-
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 COPY package*.json ./
+COPY tsconfig.json ./
+COPY src ./src
 
-RUN npm ci
+RUN npm ci --unsafe-perm
 
-# Bundle app source
-COPY dist dist
+ENV NODE_ENV production
 
 EXPOSE 3000
 CMD [ "npm", "run", "serve"]
