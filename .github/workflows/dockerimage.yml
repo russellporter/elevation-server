@@ -16,6 +16,9 @@ jobs:
 
       - name: Start the Docker container
         run: docker run -d -p 3000:3000 ${{ secrets.DockerUsername }}/elevation-server
+      
+      - name: Wait for the Docker container to start up
+        run: sleep 10
 
       - name: Integration test the Docker container
         run: test/integration-test.sh
