@@ -72,6 +72,11 @@ RUN npm ci --unsafe-perm
 
 ENV NODE_ENV production
 
+ENV ELEVATION_TILE_CACHE_DIR /var/cache/elevation-tiles
+
+RUN mkdir $ELEVATION_TILE_CACHE_DIR
+RUN chown node:node $ELEVATION_TILE_CACHE_DIR
+
 USER node
 
 EXPOSE 3000
