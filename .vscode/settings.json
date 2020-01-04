@@ -1,14 +1,14 @@
 // Place your settings in this file to overwrite default and user settings.
 {
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "eslint.autoFixOnSave": true,
   "eslint.validate": [
     "javascript",
     { "language": "typescript", "autoFix": true }
   ],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.organizeImports": true
+    "source.organizeImports": true,
+    "source.fixAll.eslint": true
   },
   "search.exclude": {
     "**/node_modules": true,
