@@ -9,3 +9,5 @@ export const inMemoryCacheMaxTiles = 100;
 export const zoom = 13;
 
 export const tileResolution = 512;
+
+export const redisCacheURL = env["ELEVATION_CACHE_REDIS_URL"] || null;

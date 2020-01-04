@@ -1,6 +1,8 @@
 import compression from "compression"; // compresses requests
 import express from "express";
 import * as config from "./config";
+import ElevationCache from "./ElevationCache";
+import ElevationService from "./ElevationService";
 import TileService from "./TileService";
 import logger from "./util/logger";
 
@@ -12,7 +14,11 @@ app.set("port", process.env.PORT || 3000);
 app.use(compression());
 app.use(express.json({ limit: "1mb" }));
 
+const elevationCache = config.redisCacheURL
+  ? new ElevationCache(config.redisCacheURL)
+  : null;
 const tileService = new TileService(config.diskCacheDir, config.zoom);
+const elevationService = new ElevationService(tileService, elevationCache);
 
 // Using a POST API in order to be able to accept larger payloads of points to process
 app.post("/points/elevation", async (req, res) => {
@@ -32,7 +38,7 @@ app.post("/points/elevation", async (req, res) => {
   }
 
   try {
-    const elevations = await tileService.batchGet(points);
+    const elevations = await elevationService.batchGet(points);
 
     res.json(elevations);
   } catch (error) {

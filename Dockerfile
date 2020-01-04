@@ -4,9 +4,16 @@ ENV ROOTDIR /usr/local/
 ENV GDAL_VERSION 2.4.3
 ENV OPENJPEG_VERSION 2.3.1
 
+WORKDIR $ROOTDIR/
+
+# Install Redis
+
+RUN apt-get install -y redis
+
+RUN redis-server
+
 # Install GDAL, based on https://github.com/GeographicaGS/Docker-GDAL2/blob/master/2.4.3/Dockerfile
 # Load assets
-WORKDIR $ROOTDIR/
 
 ADD http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz $ROOTDIR/src/
 ADD https://github.com/uclouvain/openjpeg/archive/v${OPENJPEG_VERSION}.tar.gz $ROOTDIR/src/openjpeg-${OPENJPEG_VERSION}.tar.gz
@@ -73,6 +80,7 @@ RUN npm ci --unsafe-perm
 ENV NODE_ENV production
 
 ENV ELEVATION_TILE_CACHE_DIR /var/cache/elevation-tiles
+ENV ELEVATION_CACHE_REDIS_URL //127.0.0.1:6379
 
 RUN mkdir $ELEVATION_TILE_CACHE_DIR
 RUN chown node:node $ELEVATION_TILE_CACHE_DIR
