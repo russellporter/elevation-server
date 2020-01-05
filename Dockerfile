@@ -1,18 +1,20 @@
 FROM node:12
 
 ENV ROOTDIR /usr/local/
+
+# Install Redis
+WORKDIR $ROOTDIR/src
+ENV REDIS_VERSION 5.0.7
+ADD http://download.redis.io/releases/redis-${REDIS_VERSION}.tar.gz .
+RUN tar xzf redis-${REDIS_VERSION}.tar.gz
+RUN cd redis-${REDIS_VERSION} && make && make install
+
+# Install GDAL, based on https://github.com/GeographicaGS/Docker-GDAL2/blob/master/2.4.3/Dockerfile
 ENV GDAL_VERSION 2.4.3
 ENV OPENJPEG_VERSION 2.3.1
 
 WORKDIR $ROOTDIR/
 
-# Install Redis
-
-RUN apt-get install -y redis
-
-RUN redis-server
-
-# Install GDAL, based on https://github.com/GeographicaGS/Docker-GDAL2/blob/master/2.4.3/Dockerfile
 # Load assets
 
 ADD http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz $ROOTDIR/src/
@@ -87,5 +89,10 @@ RUN chown node:node $ELEVATION_TILE_CACHE_DIR
 
 USER node
 
+COPY docker-entrypoint.sh /usr/local/bin/
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
 EXPOSE 3000
-CMD [ "node", "dist/server.js"]
+
+CMD ["node", "dist/server.js"]
