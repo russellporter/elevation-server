@@ -2,8 +2,8 @@ import redis from "redis";
 import { promisify } from "util";
 
 export default class ElevationCache {
-  private redisMultiGet: (keys: string[]) => (string | null)[];
-  private redisMultiSet: (keysAndValues: string[]) => void;
+  private redisMultiGet: (keys: string[]) => Promise<(string | null)[]>;
+  private redisMultiSet: (keysAndValues: string[]) => Promise<boolean>;
 
   constructor(redisCacheURL: string) {
     const client = redis.createClient(redisCacheURL);

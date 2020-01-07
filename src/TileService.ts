@@ -7,6 +7,12 @@ import {
 } from "./TileProvider";
 import { getTileKey, getTilePosition, TileReference } from "./TileReference";
 
+type TileInfo = {
+  ref: TileReference;
+  positions: [number, number][];
+  coordIndices: number[];
+};
+
 export default class TileService {
   private provider: TileProvider;
   private zoom: number;
@@ -22,25 +28,19 @@ export default class TileService {
   }
 
   async batchGet(coords: [number, number][]): Promise<number[]> {
-    const coordsByTile = new Map<
-      string,
-      {
-        ref: TileReference;
-        positions: [number, number][];
-        coordIndices: number[];
-      }
-    >();
+    const coordsByTile = new Map<string, TileInfo>();
     coords.forEach((coord, index) => {
       const tilePosition = getTilePosition(coord, config.zoom);
       const tileKey = getTileKey(tilePosition.ref);
-      if (!coordsByTile.has(tileKey)) {
-        coordsByTile.set(tileKey, {
+      let tileInfo = coordsByTile.get(tileKey);
+      if (!tileInfo) {
+        tileInfo = {
           ref: tilePosition.ref,
           positions: [],
           coordIndices: []
-        });
+        };
+        coordsByTile.set(tileKey, tileInfo);
       }
-      const tileInfo = coordsByTile.get(tileKey);
       tileInfo.coordIndices.push(index);
       tileInfo.positions.push([tilePosition.x, tilePosition.y]);
     });

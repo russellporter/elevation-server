@@ -16,15 +16,16 @@ export default class ElevationService {
 
       // TODO: Make use of partial cache hits.
       if (!elevations.includes(null)) {
-        return elevations;
+        return elevations as number[];
       }
     }
 
     const elevations = await this.tileService.batchGet(coords);
 
-    this.elevationCache.batchPut(
-      coords.map((coord, index) => [coord[0], coord[1], elevations[index]])
-    );
+    this.elevationCache &&
+      this.elevationCache.batchPut(
+        coords.map((coord, index) => [coord[0], coord[1], elevations[index]])
+      );
     return elevations;
   }
 }
