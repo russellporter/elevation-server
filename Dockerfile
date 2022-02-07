@@ -1,4 +1,4 @@
-FROM node:16.12.0
+FROM node:16.13.0
 
 ENV ROOTDIR /usr/local/
 
