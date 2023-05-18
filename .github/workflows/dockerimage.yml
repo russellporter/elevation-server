@@ -24,7 +24,7 @@ jobs:
         name: Integration test the Docker container
         run: test/integration-test.sh
 
-      - name: Rollback Deployment
+      - name: Dump container logs
         if: failure() && steps.test.outcome == 'failure'
         run: |
           docker compose logs app

@@ -34,7 +34,6 @@ ENV ELEVATION_CACHE_REDIS_URL //127.0.0.1:6379
 RUN mkdir $ELEVATION_TILE_CACHE_DIR
 
 RUN useradd -ms /bin/bash node
-RUN chown node:node $ELEVATION_TILE_CACHE_DIR
 
 USER node
 
