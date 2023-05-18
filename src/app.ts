@@ -1,9 +1,9 @@
 import compression from "compression"; // compresses requests
 import express from "express";
-import * as config from "./config";
 import ElevationCache from "./ElevationCache";
 import ElevationService from "./ElevationService";
 import TileService from "./TileService";
+import * as config from "./config";
 import logger from "./util/logger";
 
 // Create Express server
@@ -26,7 +26,7 @@ app.post("/points/elevation", async (req, res) => {
   if (
     !Array.isArray(points) ||
     points.some(
-      point =>
+      (point) =>
         !Array.isArray(point) ||
         point.length !== 2 ||
         typeof point[0] !== "number" ||

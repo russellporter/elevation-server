@@ -10,4 +10,6 @@ export const zoom = 13;
 
 export const tileResolution = 512;
 
+export const fractionalDigits = 2;
+
 export const redisCacheURL = env["ELEVATION_CACHE_REDIS_URL"] || null;

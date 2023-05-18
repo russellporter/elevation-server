@@ -1,11 +1,11 @@
 import { spawn } from "child_process";
-import * as config from "./config";
 import {
   DiskCacheTileProvider,
   HTTPTileProvider,
-  TileProvider
+  TileProvider,
 } from "./TileProvider";
-import { getTileKey, getTilePosition, TileReference } from "./TileReference";
+import { TileReference, getTileKey, getTilePosition } from "./TileReference";
+import * as config from "./config";
 
 type TileInfo = {
   ref: TileReference;
@@ -37,7 +37,7 @@ export default class TileService {
         tileInfo = {
           ref: tilePosition.ref,
           positions: [],
-          coordIndices: []
+          coordIndices: [],
         };
         coordsByTile.set(tileKey, tileInfo);
       }
@@ -46,27 +46,29 @@ export default class TileService {
     });
 
     const elevationsByIndices = await Promise.all(
-      Array.from(coordsByTile.values()).map(async tileInfo => {
+      Array.from(coordsByTile.values()).map(async (tileInfo) => {
         const elevations = await this.lookupForTile(
           tileInfo.ref,
           tileInfo.positions
         );
         return tileInfo.coordIndices.map((originalIndex, arrayIndex) => [
           originalIndex,
-          elevations[arrayIndex]
+          elevations[arrayIndex],
         ]);
       })
     );
 
     const elevations = new Array(coords.length);
-    elevationsByIndices.flat().forEach(indexAndElevation => {
-      elevations[indexAndElevation[0]] = indexAndElevation[1];
+    elevationsByIndices.flat().forEach((indexAndElevation) => {
+      elevations[indexAndElevation[0]] = new Number(
+        indexAndElevation[1].toFixed(config.fractionalDigits)
+      );
     });
 
     return elevations;
   }
 
-  async lookupForTile(
+  private async lookupForTile(
     tileReference: TileReference,
     positions: [number, number][]
   ): Promise<number[]> {
@@ -75,25 +77,25 @@ export default class TileService {
       const process = spawn("gdallocationinfo", ["-valonly", tilePath]);
 
       process.stdin.write(
-        positions.map(pair => pair[0] + " " + pair[1]).join("\n") + "\n"
+        positions.map((pair) => pair[0] + " " + pair[1]).join("\n") + "\n"
       );
       process.stdin.end();
       let result = "";
       let error = "";
-      process.stdout.on("data", data => {
+      process.stdout.on("data", (data) => {
         result += data;
       });
-      process.stderr.on("data", data => {
+      process.stderr.on("data", (data) => {
         error += data;
       });
-      process.on("close", code => {
+      process.on("close", (code) => {
         if (code === 0) {
           const elevations = result
             .split("\n")
             // Remove empty entry after trailing newline
             .slice(0, -1)
-            .map(elevationString => parseFloat(elevationString));
-          if (elevations.some(value => isNaN(value))) {
+            .map((elevationString) => parseFloat(elevationString));
+          if (elevations.some((value) => isNaN(value))) {
             reject(
               "Invalid result: " +
                 result +

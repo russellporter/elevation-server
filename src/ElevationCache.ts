@@ -1,32 +1,47 @@
-import redis from "redis";
-import { promisify } from "util";
+import { createClient, RedisClientType } from "redis";
+import { fractionalDigits } from "./config";
 
 export default class ElevationCache {
-  private redisMultiGet: (keys: string[]) => Promise<(string | null)[]>;
-  private redisMultiSet: (keysAndValues: string[]) => Promise<boolean>;
-
+  private client: RedisClientType;
   constructor(redisCacheURL: string) {
-    const client = redis.createClient(redisCacheURL);
-    this.redisMultiGet = promisify(client.mget).bind(client);
-    this.redisMultiSet = promisify(client.mset).bind(client);
+    this.client = createClient({ url: redisCacheURL });
+
+    this.client.connect();
   }
 
   async batchGet(coords: [number, number][]): Promise<(number | null)[]> {
-    const keys = coords.map(coord => coord[0] + "," + coord[1]);
-    const elevationStrings = await this.redisMultiGet(keys);
+    const operations = coords.map((coord) => {
+      return this.client.GEOSEARCH(
+        "elevation",
+        {
+          longitude: coord[0],
+          latitude: coord[1],
+        },
+        { radius: 5, unit: "m" },
+        {
+          SORT: "ASC",
+          COUNT: 1,
+        }
+      );
+    });
 
-    return elevationStrings.map(str =>
-      str !== null ? Number.parseFloat(str) : null
+    const results = await Promise.all(operations);
+
+    return results.map((matches) =>
+      matches.length !== 0 ? Number.parseFloat(matches[0]) : null
     );
   }
 
   async batchPut(
     coordsWithElevation: [number, number, number][]
   ): Promise<void> {
-    const keyedElevations = coordsWithElevation.map(coord => [
-      coord[0] + "," + coord[1],
-      coord[2].toString()
-    ]);
-    await this.redisMultiSet(keyedElevations.flat());
+    const operations = coordsWithElevation.map((coord) => {
+      return this.client.GEOADD("elevation", {
+        longitude: coord[0],
+        latitude: coord[1],
+        member: coord[2].toFixed(fractionalDigits),
+      });
+    });
+    await Promise.all(operations);
   }
 }
