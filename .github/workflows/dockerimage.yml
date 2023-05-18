@@ -20,8 +20,14 @@ jobs:
       - name: Wait for the Docker container to start up
         run: sleep 10
 
-      - name: Integration test the Docker container
+      - id: test
+        name: Integration test the Docker container
         run: test/integration-test.sh
+
+      - name: Rollback Deployment
+        if: failure() && steps.test.outcome == 'failure'
+        run: |
+          docker compose logs app
 
       - name: Login to Docker
         run: echo "${{ secrets.DockerPassword }}" | docker login -u "${{ secrets.DockerUsername }}" --password-stdin
