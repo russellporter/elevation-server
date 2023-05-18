@@ -8,9 +8,5 @@ services:
       - "3000:3000"
     volumes:
       - ./docker/elevation-tiles:/var/cache/elevation-tiles
-    environment:
-      NODE_ENV: production
-      ELEVATION_CACHE_REDIS_URL: //127.0.0.1:6379
-      ELEVATION_TILE_CACHE_DIR: /var/cache/elevation-tiles
     user: root
-    command: bash -c "/bin/su -c \"ELEVATION_CACHE_REDIS_URL=redis://127.0.0.1:6379 ELEVATION_TILE_CACHE_DIR=/var/cache/elevation-tiles node /usr/src/app/dist/server.js\" - node"
+    command: bash -c "/bin/su -c \"NODE_ENV=production ELEVATION_CACHE_REDIS_URL=redis://127.0.0.1:6379 ELEVATION_TILE_CACHE_DIR=/var/cache/elevation-tiles node /usr/src/app/dist/server.js\" - node"
