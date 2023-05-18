@@ -15,8 +15,8 @@ jobs:
         run: docker build . --file Dockerfile --tag ${{ secrets.DockerUsername }}/elevation-server
 
       - name: Start the Docker container
-        run: docker run -d -p 3000:3000 ${{ secrets.DockerUsername }}/elevation-server
-      
+        run: docker compose build && docker compose up -d
+
       - name: Wait for the Docker container to start up
         run: sleep 10
 
