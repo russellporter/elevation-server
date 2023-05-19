@@ -1,3 +1,4 @@
+import geohash from "ngeohash";
 import { createClient, RedisClientType } from "redis";
 import { fractionalDigits } from "./config";
 
@@ -28,7 +29,7 @@ export default class ElevationCache {
     const results = await Promise.all(operations);
 
     return results.map((matches) =>
-      matches.length !== 0 ? Number.parseFloat(matches[0]) : null
+      matches.length !== 0 ? Number.parseFloat(matches[0].split(":")[1]) : null
     );
   }
 
@@ -39,7 +40,10 @@ export default class ElevationCache {
       return this.client.GEOADD("elevation", {
         longitude: coord[0],
         latitude: coord[1],
-        member: coord[2].toFixed(fractionalDigits),
+        member:
+          geohash.encode(coord[1], coord[0], 10) +
+          ":" +
+          coord[2].toFixed(fractionalDigits),
       });
     });
     await Promise.all(operations);
