@@ -14,10 +14,7 @@ export interface TilePosition {
 export function getTileKey(reference: TileReference): string {
   return reference.x + "-" + reference.y + "-" + reference.zoom;
 }
-export function getTilePosition(
-  coords: [number, number],
-  zoom: number
-): TilePosition {
+export function getTilePosition(coords: LngLat, zoom: number): TilePosition {
   const lat = coords[1];
   const lon = coords[0];
   const x = ((lon + 180) / 360) * Math.pow(2, zoom);
@@ -32,7 +29,7 @@ export function getTilePosition(
   return {
     x: (x % 1) * config.tileResolution,
     y: (y % 1) * config.tileResolution,
-    ref: { x: Math.floor(x), y: Math.floor(y), zoom: zoom }
+    ref: { x: Math.floor(x), y: Math.floor(y), zoom: zoom },
   };
 }
 

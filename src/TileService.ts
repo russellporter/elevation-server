@@ -9,7 +9,7 @@ import * as config from "./config";
 
 type TileInfo = {
   ref: TileReference;
-  positions: [number, number][];
+  positions: LngLat[];
   coordIndices: number[];
 };
 
@@ -27,7 +27,7 @@ export default class TileService {
     this.zoom = zoom;
   }
 
-  async batchGet(coords: [number, number][]): Promise<number[]> {
+  async batchGet(coords: LngLat[]): Promise<number[]> {
     const coordsByTile = new Map<string, TileInfo>();
     coords.forEach((coord, index) => {
       const tilePosition = getTilePosition(coord, config.zoom);
@@ -70,7 +70,7 @@ export default class TileService {
 
   private async lookupForTile(
     tileReference: TileReference,
-    positions: [number, number][]
+    positions: LngLat[]
   ): Promise<number[]> {
     const tilePath = await this.provider.get(tileReference);
     return new Promise((resolve, reject) => {

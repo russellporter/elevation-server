@@ -10,7 +10,7 @@ export default class ElevationCache {
     this.client.connect();
   }
 
-  async batchGet(coords: [number, number][]): Promise<(number | null)[]> {
+  async batchGet(coords: LngLat[]): Promise<(number | null)[]> {
     const operations = coords.map((coord) => {
       return this.client.GEOSEARCH(
         "elevation",

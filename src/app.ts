@@ -22,10 +22,10 @@ const elevationService = new ElevationService(tileService, elevationCache);
 
 // Using a POST API in order to be able to accept larger payloads of points to process
 app.post("/points/elevation", async (req, res) => {
-  const points: [number, number][] = req.body;
+  const pointsLatLng: LatLng[] = req.body;
   if (
-    !Array.isArray(points) ||
-    points.some(
+    !Array.isArray(pointsLatLng) ||
+    pointsLatLng.some(
       (point) =>
         !Array.isArray(point) ||
         point.length !== 2 ||
@@ -37,8 +37,13 @@ app.post("/points/elevation", async (req, res) => {
     return;
   }
 
+  const pointsLngLat: LngLat[] = pointsLatLng.map((point) => [
+    point[1],
+    point[0],
+  ]);
+
   try {
-    const elevations = await elevationService.batchGet(points);
+    const elevations = await elevationService.batchGet(pointsLngLat);
 
     res.json(elevations);
   } catch (error) {

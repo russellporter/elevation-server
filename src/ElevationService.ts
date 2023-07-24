@@ -10,7 +10,7 @@ export default class ElevationService {
     this.tileService = tileService;
   }
 
-  async batchGet(coords: [number, number][]): Promise<number[]> {
+  async batchGet(coords: LngLat[]): Promise<number[]> {
     if (this.elevationCache) {
       const elevations = await this.elevationCache.batchGet(coords);
 
