@@ -12,40 +12,35 @@ export default class ElevationCache {
 
   async batchGet(coords: LngLat[]): Promise<(number | null)[]> {
     const operations = coords.map((coord) => {
-      return this.client.GEOSEARCH(
-        "elevation",
-        {
-          longitude: coord[0],
-          latitude: coord[1],
-        },
-        { radius: 5, unit: "m" },
-        {
-          SORT: "ASC",
-          COUNT: 1,
-        }
-      );
+      const [hashKey, hashField] = this.hash(coord);
+      return this.client.HGET("e:" + hashKey, hashField);
     });
 
     const results = await Promise.all(operations);
 
-    return results.map((matches) =>
-      matches.length !== 0 ? Number.parseFloat(matches[0].split(":")[1]) : null
+    return results.map((match) =>
+      match !== null && match !== undefined ? Number.parseFloat(match) : null
     );
   }
 
-  async batchPut(
-    coordsWithElevation: [number, number, number][]
-  ): Promise<void> {
+  async batchPut(coordsWithElevation: LngLatEle[]): Promise<void> {
     const operations = coordsWithElevation.map((coord) => {
-      return this.client.GEOADD("elevation", {
-        longitude: coord[0],
-        latitude: coord[1],
-        member:
-          geohash.encode(coord[1], coord[0], 10) +
-          ":" +
-          coord[2].toFixed(fractionalDigits),
-      });
+      const [hashKey, hashField] = this.hash(coord);
+
+      return this.client.HSET(
+        "e:" + hashKey,
+        hashField,
+        coord[2].toFixed(fractionalDigits)
+      );
     });
     await Promise.all(operations);
+  }
+
+  private hash(coords: LngLat | LngLatEle): [string, string] {
+    const geo = geohash.encode(coords[1], coords[0], 9);
+    // Allocate a redis hash for a ±2.4 km area
+    const hashKey = geo.slice(0, 5);
+    const hashField = geo.slice(-4);
+    return [hashKey, hashField];
   }
 }
