@@ -14,6 +14,8 @@ RUN apt-get install -y redis
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash
 RUN apt-get -y install nodejs
 
+RUN sed -i 's/^hash-max-listpack-entries 512$/hash-max-listpack-entries 1024/' /etc/redis/redis.conf
+
 # Create app directory
 WORKDIR /usr/src/app
 
