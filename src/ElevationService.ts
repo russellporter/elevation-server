@@ -22,10 +22,9 @@ export default class ElevationService {
 
     const elevations = await this.tileService.batchGet(coords);
 
-    this.elevationCache &&
-      this.elevationCache.batchPut(
-        coords.map((coord, index) => [coord[0], coord[1], elevations[index]])
-      );
+    this.elevationCache?.batchPut(
+      coords.map((coord, index) => [coord[0], coord[1], elevations[index]])
+    );
     return elevations;
   }
 }

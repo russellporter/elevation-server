@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.7.0
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.9.1
 
 ENV ROOTDIR /usr/local/
 
@@ -11,7 +11,7 @@ RUN apt-get update
 RUN apt-get install -y redis
 
 # Install node
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash
 RUN apt-get -y install nodejs
 
 RUN sed -i 's/^hash-max-listpack-entries 512$/hash-max-listpack-entries 1024/' /etc/redis/redis.conf
