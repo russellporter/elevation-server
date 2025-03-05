@@ -4,6 +4,7 @@ import ElevationCache from "./ElevationCache";
 import ElevationService from "./ElevationService";
 import TileService from "./TileService";
 import * as config from "./config";
+import { LatLng, LngLat } from "./geo";
 import logger from "./util/logger";
 
 // Create Express server

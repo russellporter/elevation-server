@@ -13,7 +13,7 @@ If you want to add an in memory cache of elevation points, set `ELEVATION_CACHE_
 
 # Usage
 
-The service has a single API. Post latitude-longitude pairs as a JSON array to the service and receive an array of elevations as response.
+The service has a single API. Post latitude-longitude pairs as a JSON array to the service and receive an array of elevations as response. In case there is a no elevation data at a provided point (due to a data hole) the response will contain `null` for that point.
 
 ```sh
 curl -d '[[51.3, 13.4], [51.4, 13.3]]' -XPOST -H 'Content-Type: application/json' http://localhost:3000

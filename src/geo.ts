@@ -1,3 +1,3 @@
-type LngLat = [number, number];
-type LngLatEle = [number, number, number];
-type LatLng = [number, number];
+export type LngLat = [number, number];
+export type LngLatMaybeEle = [number, number, number | null];
+export type LatLng = [number, number];

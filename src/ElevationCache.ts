@@ -1,6 +1,7 @@
 import geohash from "ngeohash";
 import { createClient, RedisClientType } from "redis";
 import { fractionalDigits } from "./config";
+import { LngLat, LngLatMaybeEle } from "./geo";
 
 export default class ElevationCache {
   private client: RedisClientType;
@@ -10,7 +11,7 @@ export default class ElevationCache {
     this.client.connect();
   }
 
-  async batchGet(coords: LngLat[]): Promise<(number | null)[]> {
+  async batchGet(coords: LngLat[]): Promise<(number | null | "miss")[]> {
     const operations = coords.map((coord) => {
       const [hashKey, hashField] = this.hash(coord);
       return this.client.HGET("e:" + hashKey, hashField);
@@ -18,25 +19,28 @@ export default class ElevationCache {
 
     const results = await Promise.all(operations);
 
-    return results.map((match) =>
-      match !== null && match !== undefined ? Number.parseFloat(match) : null
-    );
+    return results.map((match) => {
+      if (match === undefined) {
+        return "miss";
+      }
+      return match !== "" ? Number.parseFloat(match) : null;
+    });
   }
 
-  async batchPut(coordsWithElevation: LngLatEle[]): Promise<void> {
+  async batchPut(coordsWithElevation: LngLatMaybeEle[]): Promise<void> {
     const operations = coordsWithElevation.map((coord) => {
       const [hashKey, hashField] = this.hash(coord);
 
       return this.client.HSET(
         "e:" + hashKey,
         hashField,
-        coord[2].toFixed(fractionalDigits)
+        coord[2]?.toFixed(fractionalDigits) ?? ""
       );
     });
     await Promise.all(operations);
   }
 
-  private hash(coords: LngLat | LngLatEle): [string, string] {
+  private hash(coords: LngLat | LngLatMaybeEle): [string, string] {
     const geo = geohash.encode(coords[1], coords[0], 9);
     // Allocate a redis hash for a ±2.4 km area
     const hashKey = geo.slice(0, 5);

@@ -4,14 +4,23 @@ import {
   HTTPTileProvider,
   TileProvider,
 } from "./TileProvider";
-import { TileReference, getTileKey, getTilePosition } from "./TileReference";
+import {
+  TileReference,
+  getTileKey,
+  getTilePosition,
+  getTileReferencePath,
+} from "./TileReference";
 import * as config from "./config";
+import { LngLat } from "./geo";
 
 type TileInfo = {
   ref: TileReference;
   positions: LngLat[];
   coordIndices: number[];
 };
+
+// Lowest point on earth. Data holes are represented as large negative values so should be filtered out.
+const minAllowedElevation = -430;
 
 export default class TileService {
   private provider: TileProvider;
@@ -27,7 +36,7 @@ export default class TileService {
     this.zoom = zoom;
   }
 
-  async batchGet(coords: LngLat[]): Promise<number[]> {
+  async batchGet(coords: LngLat[]): Promise<(number | null)[]> {
     const coordsByTile = new Map<string, TileInfo>();
     coords.forEach((coord, index) => {
       const tilePosition = getTilePosition(coord, config.zoom);
@@ -54,15 +63,17 @@ export default class TileService {
         return tileInfo.coordIndices.map((originalIndex, arrayIndex) => [
           originalIndex,
           elevations[arrayIndex],
-        ]);
+        ]) as [number, number | null][];
       })
     );
 
-    const elevations = new Array(coords.length);
+    const elevations: (number | null)[] = new Array(coords.length);
     elevationsByIndices.flat().forEach((indexAndElevation) => {
-      elevations[indexAndElevation[0]] = new Number(
-        indexAndElevation[1].toFixed(config.fractionalDigits)
-      );
+      const index = indexAndElevation[0];
+      const elevation = indexAndElevation[1];
+      elevations[index] = elevation
+        ? new Number(elevation.toFixed(config.fractionalDigits)).valueOf()
+        : null;
     });
 
     return elevations;
@@ -71,7 +82,8 @@ export default class TileService {
   private async lookupForTile(
     tileReference: TileReference,
     positions: LngLat[]
-  ): Promise<number[]> {
+  ): Promise<(number | null)[]> {
+    console.log("Looking up tile: " + getTileReferencePath(tileReference));
     const tilePath = await this.provider.get(tileReference);
     return new Promise((resolve, reject) => {
       const process = spawn("gdallocationinfo", ["-valonly", tilePath]);
@@ -90,23 +102,20 @@ export default class TileService {
       });
       process.on("close", (code) => {
         if (code === 0) {
-          const elevations = result
+          console.log("Lookup successful: " + result);
+          const elevations: (number | null)[] = result
             .split("\n")
             // Remove empty entry after trailing newline
             .slice(0, -1)
-            .map((elevationString) => parseFloat(elevationString));
-          if (elevations.some((value) => isNaN(value))) {
-            reject(
-              "Invalid result: " +
-                result +
-                " request: " +
-                positions +
-                " tile: " +
-                tilePath
-            );
-          } else {
-            resolve(elevations);
-          }
+            .map((elevationString) => parseFloat(elevationString))
+            .map((elevation) => {
+              if (isNaN(elevation) || elevation < minAllowedElevation) {
+                return null;
+              }
+
+              return elevation;
+            });
+          resolve(elevations);
         } else {
           reject(
             "Failed lookup (code: " +

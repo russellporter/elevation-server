@@ -1,4 +1,5 @@
 import * as config from "./config";
+import { LngLat } from "./geo";
 export interface TileReference {
   x: number;
   y: number;
