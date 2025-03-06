@@ -1,7 +1,8 @@
 # Installation
 
 1. Install GDAL 2.4+ compiled with `--with-libtiff=internal --with-geotiff=internal`
-2. `npm install` for the rest
+2. `npm install`
+3. `npm run build`
 
 (or just run the docker container)
 

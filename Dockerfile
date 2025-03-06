@@ -23,10 +23,13 @@ WORKDIR /usr/src/app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 COPY package*.json ./
+
+RUN npm ci
+
 COPY tsconfig.json ./
 COPY src ./src
 
-RUN npm ci --unsafe-perm
+RUN npm run build
 
 ENV NODE_ENV production
 
