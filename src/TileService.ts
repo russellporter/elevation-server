@@ -4,12 +4,7 @@ import {
   HTTPTileProvider,
   TileProvider,
 } from "./TileProvider";
-import {
-  TileReference,
-  getTileKey,
-  getTilePosition,
-  getTileReferencePath,
-} from "./TileReference";
+import { TileReference, getTileKey, getTilePosition } from "./TileReference";
 import * as config from "./config";
 import { LngLat } from "./geo";
 
@@ -83,7 +78,6 @@ export default class TileService {
     tileReference: TileReference,
     positions: LngLat[]
   ): Promise<(number | null)[]> {
-    console.log("Looking up tile: " + getTileReferencePath(tileReference));
     const tilePath = await this.provider.get(tileReference);
     return new Promise((resolve, reject) => {
       const process = spawn("gdallocationinfo", ["-valonly", tilePath]);
@@ -102,7 +96,6 @@ export default class TileService {
       });
       process.on("close", (code) => {
         if (code === 0) {
-          console.log("Lookup successful: " + result);
           const elevations: (number | null)[] = result
             .split("\n")
             // Remove empty entry after trailing newline
