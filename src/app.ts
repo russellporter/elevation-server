@@ -19,15 +19,7 @@ const elevationCache = config.redisCacheURL
   ? new ElevationCache(config.redisCacheURL)
   : null;
 const tileService = new TileService(config.diskCacheDir, config.zoom);
-const alternateTileService = new TileService(
-  config.diskCacheDir,
-  config.zoom - 1
-);
-const elevationService = new ElevationService(
-  tileService,
-  alternateTileService,
-  elevationCache
-);
+const elevationService = new ElevationService(tileService, elevationCache);
 
 // Using a POST API in order to be able to accept larger payloads of points to process
 app.post("/points/elevation", async (req, res) => {

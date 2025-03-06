@@ -5,8 +5,8 @@ export const diskCacheDir: string =
 export const inMemoryCacheMaxTiles = 100;
 
 // Based on native resolutions in https://github.com/tilezen/joerd/blob/master/docs/data-sources.md, -1 because of 512px tile resolution
-// Might want to reduce to 12 as it appears to have less data quality issues.
-export const zoom = 13;
+// Zoom reduced to 12 as it seems to have less data holes / stitching issues
+export const zoom = 12;
 
 export const tileResolution = 512;
 
