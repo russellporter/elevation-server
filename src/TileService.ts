@@ -39,7 +39,7 @@ export default class TileService {
   async batchGet(coords: LngLat[]): Promise<(number | null)[]> {
     const coordsByTile = new Map<string, TileInfo>();
     coords.forEach((coord, index) => {
-      const tilePosition = getTilePosition(coord, config.zoom);
+      const tilePosition = getTilePosition(coord, this.zoom);
       const tileKey = getTileKey(tilePosition.ref);
       let tileInfo = coordsByTile.get(tileKey);
       if (!tileInfo) {

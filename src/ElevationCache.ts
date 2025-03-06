@@ -12,15 +12,17 @@ export default class ElevationCache {
   }
 
   async batchGet(coords: LngLat[]): Promise<(number | null | "miss")[]> {
-    const operations = coords.map((coord) => {
-      const [hashKey, hashField] = this.hash(coord);
-      return this.client.HGET("e:" + hashKey, hashField);
-    });
+    const operations: Promise<string | undefined | null>[] = coords.map(
+      (coord) => {
+        const [hashKey, hashField] = this.hash(coord);
+        return this.client.HGET("e:" + hashKey, hashField);
+      }
+    );
 
     const results = await Promise.all(operations);
 
     return results.map((match) => {
-      if (match === undefined) {
+      if (match === undefined || match === null) {
         return "miss";
       }
       return match !== "" ? Number.parseFloat(match) : null;
