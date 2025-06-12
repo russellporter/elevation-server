@@ -22,7 +22,7 @@ jobs:
       - name: Build multi-platform Docker image
         run: |
           docker buildx build \
-            --platform linux/amd64,linux/arm64 \
+            --platform linux/amd64 \
             --tag ${{ secrets.DockerUsername }}/elevation-server \
             --file Dockerfile \
             --load \
@@ -43,8 +43,16 @@ jobs:
         run: |
           docker compose logs app
 
-      - name: Login to Docker
-        run: echo "${{ secrets.DockerPassword }}" | docker login -u "${{ secrets.DockerUsername }}" --password-stdin
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DockerUsername }}
+          password: ${{ secrets.DockerPassword }}
 
-      - name: Publish Docker image
-        run: docker push ${{ secrets.DockerUsername }}/elevation-server
+      - name: Build and push multi-platform image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ secrets.DockerUsername }}/elevation-server
