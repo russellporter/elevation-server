@@ -12,4 +12,3 @@ export const tileResolution = 512;
 
 export const fractionalDigits = 2;
 
-export const redisCacheURL = process.env["ELEVATION_CACHE_REDIS_URL"] || null;
