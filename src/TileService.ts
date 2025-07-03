@@ -77,7 +77,7 @@ export default class TileService {
 
   private async lookupForTile(
     tileReference: TileReference,
-    positions: LngLat[]
+    positions: [number, number][]
   ): Promise<(number | null)[]> {
     const tilePath = await this.provider.get(tileReference);
     return new Promise((resolve, reject) => {
