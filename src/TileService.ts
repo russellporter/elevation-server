@@ -66,9 +66,10 @@ export default class TileService {
     elevationsByIndices.flat().forEach((indexAndElevation) => {
       const index = indexAndElevation[0];
       const elevation = indexAndElevation[1];
-      elevations[index] = elevation
-        ? new Number(elevation.toFixed(config.fractionalDigits)).valueOf()
-        : null;
+      elevations[index] =
+        elevation !== null
+          ? new Number(elevation.toFixed(config.fractionalDigits)).valueOf()
+          : null;
     });
 
     return elevations;
