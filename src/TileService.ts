@@ -102,8 +102,16 @@ export default class TileService {
             // Remove empty entry after trailing newline
             .slice(0, -1)
             .map((elevationString) => parseFloat(elevationString))
-            .map((elevation) => {
+            .map((elevation, index) => {
               if (isNaN(elevation) || elevation < minAllowedElevation) {
+                console.warn(
+                  "Invalid elevation value at position " +
+                    positions[index] +
+                    " for tile " +
+                    tilePath +
+                    ": " +
+                    elevation
+                );
                 return null;
               }
 
